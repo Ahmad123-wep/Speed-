@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>محول العملات - بيع وشراء وتواصل فوري</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
+    
+    @keyframes marquee {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .animate-marquee {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 22s linear infinite;
+    }
+    .animate-marquee:hover {
+      animation-play-state: paused;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6 pb-20">
+
+  <!-- شريط أزرار التواصل السريع في أعلى الصفحة -->
+  <div class="w-full max-w-lg flex items-center justify-center gap-3 mb-3">
+    <!-- زر واتساب -->
+    <a id="btnWhatsapp" href="https://wa.me/963900000000" target="_blank" class="flex items-center gap-1.5 bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-slate-950 px-3 py-1.5 rounded-full border border-[#25D366]/40 transition text-xs font-bold shadow">
+      <span>💬</span>
+      <span>واتساب</span>
+    </a>
+
+    <!-- زر تليجرام -->
+    <a id="btnTelegram" href="https://t.me/username" target="_blank" class="flex items-center gap-1.5 bg-[#229ED9]/20 hover:bg-[#229ED9] text-[#229ED9] hover:text-white px-3 py-1.5 rounded-full border border-[#229ED9]/40 transition text-xs font-bold shadow">
+      <span>✈️</span>
+      <span>تليجرام</span>
+    </a>
+
+    <!-- زر ماسنجر -->
+    <a id="btnMessenger" href="https://m.me/username" target="_blank" class="flex items-center gap-1.5 bg-[#0084FF]/20 hover:bg-[#0084FF] text-[#0084FF] hover:text-white px-3 py-1.5 rounded-full border border-[#0084FF]/40 transition text-xs font-bold shadow">
+      <span>⚡</span>
+      <span>ماسنجر</span>
+    </a>
+  </div>
+
+  <!-- صندوق التطبيق الرئيسي -->
+  <div class="w-full max-w-lg bg-slate-800 rounded-3xl shadow-2xl p-5 sm:p-7 border border-slate-700 relative">
+    
+    <!-- زر فتح لوحة التحكم -->
+    <button id="openAdminBtn" title="لوحة التحكم بالأسعار والإعلانات" class="absolute top-5 left-5 text-slate-400 hover:text-emerald-400 p-2 rounded-full hover:bg-slate-700 transition">
+      ⚙️
+    </button>
+
+    <!-- رأس التطبيق -->
+    <div class="text-center mb-5">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-emerald-400">محول العملات المالي</h1>
+      <p class="text-xs text-slate-400 mt-1">عرض دقيق لأسعار الشراء والبيع ومطابقة السوق</p>
+    </div>
+
+    <!-- جدول أسعار السوق السريعة مقابل الدولار (USD) -->
+    <div class="mb-5 bg-slate-900/80 rounded-2xl p-3 border border-slate-700">
+      <div class="text-xs font-semibold text-slate-400 mb-2 text-center">أسعار الصرف مقابل 1 دولار أمريكي (USD)</div>
+      <div class="grid grid-cols-3 gap-2 text-center text-xs">
+        
+        <!-- الليرة السورية -->
+        <div class="bg-slate-800 p-2 rounded-xl border border-slate-700/60">
+          <div class="font-bold text-amber-400 mb-1">الليرة السورية</div>
+          <div class="flex justify-between text-[11px] text-slate-400">
+            <span>شراء:</span>
+            <span id="card-syp-buy" class="font-bold text-slate-200">--</span>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-400">
+            <span>مبيع:</span>
+            <span id="card-syp-sell" class="font-bold text-emerald-400">--</span>
+          </div>
+        </div>
+
+        <!-- الليرة التركية -->
+        <div class="bg-slate-800 p-2 rounded-xl border border-slate-700/60">
+          <div class="font-bold text-sky-400 mb-1">الليرة التركية</div>
+          <div class="flex justify-between text-[11px] text-slate-400">
+            <span>شراء:</span>
+            <span id="card-try-buy" class="font-bold text-slate-200">--</span>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-400">
+            <span>مبيع:</span>
+            <span id="card-try-sell" class="font-bold text-emerald-400">--</span>
+          </div>
+        </div>
+
+        <!-- اليورو -->
+        <div class="bg-slate-800 p-2 rounded-xl border border-slate-700/60">
+          <div class="font-bold text-indigo-400 mb-1">اليورو</div>
+          <div class="flex justify-between text-[11px] text-slate-400">
+            <span>شراء:</span>
+            <span id="card-eur-buy" class="font-bold text-slate-200">--</span>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-400">
+            <span>مبيع:</span>
+            <span id="card-eur-sell" class="font-bold text-emerald-400">--</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- نوع العملية (شراء / مبيع) -->
+    <div class="mb-4">
+      <label class="block text-xs font-semibold text-slate-300 mb-2">نوع العملية المطلوب حسابها:</label>
+      <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-700">
+        <button id="modeBuy" class="py-2 text-xs sm:text-sm font-bold rounded-xl transition bg-emerald-500 text-slate-950 shadow">
+          سعر الشراء (نشتري منك)
+        </button>
+        <button id="modeSell" class="py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-300 hover:text-white">
+          سعر المبيع (نبيع لك)
+        </button>
+      </div>
+    </div>
+
+    <!-- حقل المبلغ -->
+    <div class="mb-4">
+      <label class="block text-xs font-medium text-slate-300 mb-1.5">المبلغ المراد تحويله</label>
+      <input type="number" id="amount" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-lg font-bold focus:outline-none focus:border-emerald-500 transition">
+    </div>
+
+    <!-- اختيار العملات -->
+    <div class="grid grid-cols-5 gap-2 items-center mb-5">
+      <div class="col-span-2">
+        <label class="block text-xs text-slate-400 mb-1">من عملة</label>
+        <select id="fromCurrency" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+          <option value="USD">USD (دولار)</option>
+          <option value="EUR">EUR (يورو)</option>
+          <option value="TRY">TRY (تركي)</option>
+          <option value="SYP">SYP (سوري)</option>
+        </select>
+      </div>
+
+      <div class="flex justify-center pt-4">
+        <button id="swapBtn" class="bg-slate-700 hover:bg-emerald-600 text-white p-2.5 rounded-full transition shadow">
+          ⇄
+        </button>
+      </div>
+
+      <div class="col-span-2">
+        <label class="block text-xs text-slate-400 mb-1">إلى عملة</label>
+        <select id="toCurrency" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+          <option value="SYP">SYP (سوري)</option>
+          <option value="TRY">TRY (تركي)</option>
+          <option value="USD">USD (دولار)</option>
+          <option value="EUR">EUR (يورو)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- نتيجة الحساب -->
+    <div class="bg-slate-900 rounded-2xl p-4 border border-slate-700 text-center mb-5 shadow-inner">
+      <div class="text-xs text-slate-400 mb-1">المبلغ المحول التقديري (<span id="activeModeLabel" class="text-emerald-400 font-bold">سعر الشراء</span>)</div>
+      <div id="resultText" class="text-3xl font-extrabold text-emerald-400">0.00</div>
+      <div id="rateDetails" class="text-xs text-slate-500 mt-2">1 USD = 0.00 SYP</div>
+      <div id="lastUpdated" class="text-[10px] text-slate-500 mt-1">الأسعار جاهزة ومحفوظة</div>
+    </div>
+
+    <!-- زر التحديث التلقائي من الإنترنت -->
+    <button id="fetchApiBtn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-2xl transition shadow-lg flex items-center justify-center gap-2">
+      <span>تحديث الأسعار العالمية تلقائياً</span>
+      <span id="apiSpinner" class="hidden animate-spin">🔄</span>
+    </button>
+  </div>
+
+  <!-- شريط الإعلان المتحرك في أسفل الشاشة -->
+  <div class="fixed bottom-0 left-0 right-0 bg-slate-950/95 border-t border-slate-700/80 backdrop-blur px-4 py-2.5 flex items-center z-40 shadow-2xl">
+    <div class="bg-emerald-500 text-slate-950 font-bold text-[11px] px-2.5 py-1 rounded-md shrink-0 ml-3 flex items-center gap-1">
+      <span>📢</span>
+      <span>إعلان</span>
+    </div>
+    <div class="overflow-hidden w-full relative">
+      <div id="adBannerText" class="animate-marquee text-xs font-semibold text-slate-200">
+        ✨ للإعلان هنا أو الاستفسار عن خدمات الصرافة والتحويل المالي المباشر تواصل معنا عبر واتساب | أسعار خاصة للكميات والمكاتب المعتمدة ✨
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة لوحة التحكم بالأسعار والإعلانات وجهات الاتصال -->
+  <div id="adminModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50">
+    <div class="bg-slate-800 w-full max-w-md rounded-3xl p-5 border border-slate-700 shadow-2xl">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-base font-bold text-emerald-400">لوحة التحكم الكاملة</h3>
+        <button id="closeAdminBtn" class="text-slate-400 hover:text-white text-xl font-bold">×</button>
+      </div>
+
+      <div class="space-y-3 mb-5 max-h-[60vh] overflow-y-auto px-1">
+
+        <!-- روابط التواصل الاجتماعي -->
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+          <div class="text-xs font-bold text-emerald-400 mb-2">📞 إعدادات أزرار التواصل العلوية:</div>
+          <div class="space-y-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-0.5">رقم واتساب (مع رمز الدولة مثلا 9639...):</label>
+              <input type="text" id="adminWhatsappInput" placeholder="مثال: 963912345678" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-0.5">اسم مستخدم تليجرام (بدون @):</label>
+              <input type="text" id="adminTelegramInput" placeholder="مثال: my_username" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-0.5">اسم مستخدم ماسنجر / رابط الصفحة:</label>
+              <input type="text" id="adminMessengerInput" placeholder="مثال: mypage.name" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+        
+        <!-- تعديل الإعلان المتحرك -->
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+          <label class="text-xs font-bold text-emerald-400 block mb-1">📢 نص الإعلان المتحرك في الأسفل:</label>
+          <textarea id="adTextInput" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-200 placeholder-slate-500"></textarea>
+        </div>
+
+        <p class="text-xs text-slate-400 pt-1">الأسعار مسجلة مقابل <span class="text-emerald-400 font-bold">1 دولار أمريكي (USD)</span>:</p>
+
+        <!-- الليرة السورية -->
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+          <div class="text-xs font-bold text-amber-400 mb-2">الليرة السورية (SYP):</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">سعر الشراء:</label>
+              <input type="number" id="sypBuyInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">سعر المبيع:</label>
+              <input type="number" id="sypSellInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- الليرة التركية -->
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+          <div class="text-xs font-bold text-sky-400 mb-2">الليرة التركية (TRY):</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">سعر الشراء:</label>
+              <input type="number" step="0.01" id="tryBuyInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">سعر المبيع:</label>
+              <input type="number" step="0.01" id="trySellInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- اليورو -->
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+          <div class="text-xs font-bold text-indigo-400 mb-2">اليورو (EUR):</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">سعر الشراء:</label>
+              <input type="number" step="0.001" id="eurBuyInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">سعر المبيع:</label>
+              <input type="number" step="0.001" id="eurSellInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex gap-2">
+        <button id="saveManualBtn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl transition text-sm">
+          حفظ التعديلات
+        </button>
+        <button id="cancelModalBtn" class="bg-slate-700 hover:bg-slate-600 px-4 py-2.5 rounded-xl transition text-sm text-slate-200">
+          إلغاء
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASSCODE = '159357';
+
+    // روابط التواصل المحفوظة أو الافتراضية
+    const defaultContacts = {
+      whatsapp: '963900000000',
+      telegram: 'username',
+      messenger: 'username'
+    };
+    let contacts = JSON.parse(localStorage.getItem('myAppContacts')) || defaultContacts;
+
+    // استرجاع نص الإعلان المحفوظ أو النص التلقائي
+    const defaultAd = '✨ للإعلان هنا أو الاستفسار عن خدمات الصرافة والتحويل المالي المباشر تواصل معنا عبر واتساب | أسعار خاصة للكميات والمكاتب المعتمدة ✨';
+    let currentAdText = localStorage.getItem('myAppAdText') || defaultAd;
+
+    // قاعدة البيانات المبدئية للأسعار (شراء وبيع مقابل 1 USD)
+    const defaultData = {
+      USD: { buy: 1, sell: 1 },
+      EUR: { buy: 0.915, sell: 0.925 },
+      TRY: { buy: 34.0, sell: 34.3 },
+      SYP: { buy: 14600, sell: 14800 }
+    };
+
+    let currencyRates = JSON.parse(localStorage.getItem('myAppBuySellRates')) || defaultData;
+    let currentMode = 'buy';
+
+    // عناصر أزرار التواصل
+    const btnWhatsapp = document.getElementById('btnWhatsapp');
+    const btnTelegram = document.getElementById('btnTelegram');
+    const btnMessenger = document.getElementById('btnMessenger');
+
+    // عناصر الواجهة
+    const amountInput = document.getElementById('amount');
+    const fromSelect = document.getElementById('fromCurrency');
+    const toSelect = document.getElementById('toCurrency');
+    const swapBtn = document.getElementById('swapBtn');
+    const resultText = document.getElementById('resultText');
+    const rateDetails = document.getElementById('rateDetails');
+    const lastUpdated = document.getElementById('lastUpdated');
+    const fetchApiBtn = document.getElementById('fetchApiBtn');
+    const apiSpinner = document.getElementById('apiSpinner');
+    const modeBuy = document.getElementById('modeBuy');
+    const modeSell = document.getElementById('modeSell');
+    const activeModeLabel = document.getElementById('activeModeLabel');
+    const adBannerText = document.getElementById('adBannerText');
+
+    // بطاقات الأسعار في الواجهة
+    const cardSypBuy = document.getElementById('card-syp-buy');
+    const cardSypSell = document.getElementById('card-syp-sell');
+    const cardTryBuy = document.getElementById('card-try-buy');
+    const cardTrySell = document.getElementById('card-try-sell');
+    const cardEurBuy = document.getElementById('card-eur-buy');
+    const cardEurSell = document.getElementById('card-eur-sell');
+
+    // عناصر لوحة التحكم
+    const adminModal = document.getElementById('adminModal');
+    const openAdminBtn = document.getElementById('openAdminBtn');
+    const closeAdminBtn = document.getElementById('closeAdminBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const saveManualBtn = document.getElementById('saveManualBtn');
+    const adTextInput = document.getElementById('adTextInput');
+
+    const adminWhatsappInput = document.getElementById('adminWhatsappInput');
+    const adminTelegramInput = document.getElementById('adminTelegramInput');
+    const adminMessengerInput = document.getElementById('adminMessengerInput');
+
+    const sypBuyInput = document.getElementById('sypBuyInput');
+    const sypSellInput = document.getElementById('sypSellInput');
+    const tryBuyInput = document.getElementById('tryBuyInput');
+    const trySellInput = document.getElementById('trySellInput');
+    const eurBuyInput = document.getElementById('eurBuyInput');
+    const eurSellInput = document.getElementById('eurSellInput');
+
+    function updateUI() {
+      // تحديث روابط التواصل
+      btnWhatsapp.href = `https://wa.me/${contacts.whatsapp.replace(/[^0-9]/g, '')}`;
+      btnTelegram.href = `https://t.me/${contacts.telegram.replace('@', '')}`;
+      btnMessenger.href = contacts.messenger.startsWith('http') ? contacts.messenger : `https://m.me/${contacts.messenger}`;
+
+      // تحديث شريط الإعلان
+      adBannerText.innerText = currentAdText;
+
+      // تحديث بطاقات الأسعار
+      cardSypBuy.innerText = currencyRates.SYP.buy.toLocaleString();
+      cardSypSell.innerText = currencyRates.SYP.sell.toLocaleString();
+      cardTryBuy.innerText = currencyRates.TRY.buy;
+      cardTrySell.innerText = currencyRates.TRY.sell;
+      cardEurBuy.innerText = currencyRates.EUR.buy;
+      cardEurSell.innerText = currencyRates.EUR.sell;
+    }
+
+    function calculate() {
+      const amount = parseFloat(amountInput.value) || 0;
+      const fromCurr = fromSelect.value;
+      const toCurr = toSelect.value;
+
+      const fromRate = currencyRates[fromCurr][currentMode];
+      const toRate = currencyRates[toCurr][currentMode];
+
+      const inUSD = amount / fromRate;
+      const finalResult = inUSD * toRate;
+
+      resultText.innerText = finalResult.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' ' + toCurr;
+      
+      const singleUnitRate = (1 / fromRate) * toRate;
+      rateDetails.innerText = `1 ${fromCurr} = ${singleUnitRate.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${toCurr}`;
+    }
+
+    modeBuy.addEventListener('click', () => {
+      currentMode = 'buy';
+      modeBuy.className = 'py-2 text-xs sm:text-sm font-bold rounded-xl transition bg-emerald-500 text-slate-950 shadow';
+      modeSell.className = 'py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-300 hover:text-white';
+      activeModeLabel.innerText = 'سعر الشراء';
+      calculate();
+    });
+
+    modeSell.addEventListener('click', () => {
+      currentMode = 'sell';
+      modeSell.className = 'py-2 tex
